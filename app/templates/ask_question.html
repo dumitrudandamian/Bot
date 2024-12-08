@@ -1,0 +1,609 @@
+<!doctype html>
+<html lang="en">
+<head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
+    <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css">
+    <style>
+    body {
+        background-color: #f7f7f7;
+        color: #333;
+    }
+    .container {
+        margin-top: 50px;
+    }
+    .orange-logo {
+        width: 100px; /* Make the logo smaller */
+        float: left; /* Float the logo to the left */
+        margin-right: 20px; /* Add some space to the right of the logo */
+    }
+    .card {
+        box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+    }
+    .btn-primary {
+        background-color: #ff7900;
+        border-color: #ff7900;
+    }
+    .result-area {
+        margin-top: 20px;
+    }
+    .result-card {
+        margin-top: 10px;
+        padding: 10px;
+        background: #fff;
+        border: 1px solid #ddd;
+        border-radius: 4px;
+    }
+    .category-list {
+        list-style-type: none;
+        padding: 0;
+    }
+    .category-list li {
+        background: #ff7900;
+        color: #fff;
+        padding: 5px;
+        margin-bottom: 5px;
+        border-radius: 3px;
+    }
+    .spinner-border {
+        width: 3rem;
+        height: 3rem;
+        display: none;
+    }
+    .results-container {
+        display: flex;
+        flex-wrap: wrap;
+        margin-top: 20px;
+    }
+    .answer-box, .categories-box {
+        flex: 1 1 100%;
+        margin-bottom: 20px;
+    }
+    .answer {
+        white-space: pre-wrap;
+        word-wrap: break-word;
+        background-color: #f7f7f7;
+        padding: 10px;
+        border: 1px solid #ddd;
+        border-radius: 4px;
+        max-height: none;
+    }
+    .categories-box {
+        background: #fff;
+        padding: 10px;
+        border: 1px solid #ddd;
+        border-radius: 4px;
+    }
+    .chat-question {
+        background-color: #e9ecef;
+        padding: 10px;
+        margin-bottom: 5px;
+        border-radius: 4px;
+    }
+    .chat-answer {
+        background-color: #f7f7f7;
+        padding: 10px;
+        margin-bottom: 5px;
+        border-radius: 4px;
+    }
+    </style>
+    <title>Upload File & Ask Question</title>
+    <script>
+        function loadModelName() {
+            fetch('/yoxofaqbot/api/private/model_name' , {
+                method: 'GET',
+            })
+            .then(response => response.json())
+            .then(data => {
+                document.getElementById('ask-card-title').textContent = "Ask " + data.content;
+                document.getElementById('chat-card-title').textContent = "Chat " + data.content;
+            })
+            .catch(error => {
+                alert('Error: ' + error.message);
+            });
+        }
+        window.onload = loadModelName;
+    </script>
+    <script src="https://cdn.jsdelivr.net/npm/marked/marked.min.js"></script>
+</head>
+<body>
+    <div class="container">
+        <div>
+            <img src="{{ url_for('static', filename='orange_logo.png') }}" class="orange-logo">
+        </div>
+        <ul class="nav nav-tabs" id="myTab" role="tablist">
+            <li class="nav-item">
+                <a class="nav-link active" id="chat-tab" data-toggle="tab" href="#chat" role="tab" aria-controls="chat" aria-selected="true">Chat</a>
+            </li>       
+            <li class="nav-item">
+                <a class="nav-link" id="ask-question-tab" data-toggle="tab" href="#ask-question" role="tab" aria-controls="ask-question" aria-selected="false">Ask a Question</a>
+            </li>     
+            <li class="nav-item">
+                <a class="nav-link" id="upload-file-tab" data-toggle="tab" href="#upload-file" role="tab" aria-controls="upload-file" aria-selected="false">Batch Answer</a>
+            </li>
+            <li class="nav-item">
+                <a class="nav-link" id="edit-config-tab" data-toggle="tab" href="#edit-config" role="tab" aria-controls="edit-config" aria-selected="false">Manage Base Prompts</a>
+            </li>
+            <li class="nav-item">
+                <a class="nav-link" id="manage-download-tab" data-toggle="tab" href="#manage-download" role="tab" aria-controls="manage-download" aria-selected="false">Manage FAQs</a>
+            </li>
+        </ul>
+        <div class="tab-content" id="myTabContent">
+            <!-- Ask Question Tab -->
+            <div class="tab-pane fade" id="ask-question" role="tabpanel" aria-labelledby="ask-question-tab">
+                <div class="card mt-4">
+                    <div class="card-body">
+                        <h1 class="card-title" id="ask-card-title">Ask a question</h1>
+                        <div class="form-group">
+                            <label for="question">Your Question</label>
+                            <textarea class="form-control" id="question" name="question" rows="3"></textarea>
+                        </div>
+                        <button type="button" class="btn btn-primary" onclick="submitQuestion()">Submit Question</button>
+                        <div class="text-center mt-3">
+                            <div class="spinner-border text-primary" role="status" id="loading-spinner">
+                                <span class="sr-only">Loading...</span>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <div class="result-area">
+                    <div class="result-card" style="display:none;" id="result-card">
+                        <div class="results-container">
+                            <div class="answer-box">
+                                <h5>Answer:</h5>
+                                <div class="answer" id="answer"></div>
+                            </div>
+                            <div class="categories-box">
+                                <h5>Categories:</h5>
+                                <ul id="categories" class="category-list"></ul>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <!-- Chat Tab -->
+            <div class="tab-pane fade show active" id="chat" role="tabpanel" aria-labelledby="chat-tab">
+                <div class="card mt-4" style="display: flex; flex-direction: column; height: 85vh;">
+                    <div class="card-body" style="display: flex; flex-direction: column; flex-grow: 1;">
+                        <h1 class="card-title" id="chat-card-title">Chat</h1>
+                        <div class="chat-history mt-3 mb-3" id="chatHistory" style="flex-grow: 1; overflow-y: auto; border: 1px solid #ddd; padding: 10px;">
+                            <!-- Chat history will be appended here -->
+                        </div>
+                        <div class="form-group">
+                            <label for="chatQuestion">Your Question</label>
+                            <textarea class="form-control" id="chatQuestion" name="chatQuestion" rows="1"></textarea>
+                        </div>
+                        <div style="display: flex; justify-content: space-between;">
+                            <button type="button" class="btn btn-primary" onclick="submitChatQuestion()">Submit Question</button>
+                            <button type="button" class="btn btn-secondary" onclick="resetDiscussion()">Reset Discussion</button>
+                        </div>
+                        <div class="text-center mt-3">
+                            <div class="spinner-border text-primary" role="status" id="chat-loading-spinner" style="display: none;">
+                                <span class="sr-only">Loading...</span>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>            
+            <!-- Upload File Tab -->
+            <div class="tab-pane fade" id="upload-file" role="tabpanel" aria-labelledby="upload-file-tab">
+                <div class="card mt-4">
+                    <div class="card-body">
+                        <h1 class="card-title">Upload a Questions File</h1>
+                        <form id="uploadForm" enctype="multipart/form-data">
+                            <div class="form-group">
+                                <label for="fileInput">Choose File</label>
+                                <input type="file" class="form-control-file" id="fileInput" name="file">
+                            </div>
+                            <button type="button" class="btn btn-primary" onclick="uploadFile()">Upload File</button>
+                        </form>
+                        <div class="text-center mt-3">
+                            <div class="spinner-border text-primary" role="status" id="upload-spinner" style="display: none;">
+                                <span class="sr-only">Loading...</span>
+                            </div>
+                            <p id="status-message"></p>
+                            <button id="download-answers-button" type="button" class="btn btn-success" style="display: none;" onclick="downloadAnswersFile()">Download Processed File</button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <!-- Edit Config Tab -->
+            <div class="tab-pane fade" id="edit-config" role="tabpanel" aria-labelledby="edit-config-tab">
+                <div class="card mt-4">
+                    <div class="card-body">
+                        <h1 class="card-title">Edit Configuration Files</h1>
+                        <form id="configForm" enctype="multipart/form-data">
+                            <div class="form-group">
+                                <label for="configSelect">Select Configuration File</label>
+                                <select class="form-control" id="configSelect" name="configFile" onchange="loadConfigFile()">
+                                    <option value="categ_prompt.txt">Categ Prompt</option>
+                                    <option value="qa_prompt.txt">QA Prompt</option>
+                                    <option value="assistant_categ_prompt.txt">Chat Categ Prompt</option>
+                                    <option value="assistant_qa_prompt.txt">Chat QA Prompt</option>
+                                    <option value="roaming_source_start_prompt.txt">Roaming Source Start Prompt</option>
+                                    <option value="default_source_start_prompt.txt">Default Source Start Prompt</option>
+                                </select>
+                            </div>
+                            <div class="form-group">
+                                <label for="configContent">File Content</label>
+                                <textarea class="form-control" id="configContent" name="configContent" rows="10"></textarea>
+                            </div>
+                            <button type="button" class="btn btn-primary" onclick="saveConfigFile()">Save Configuration</button>
+                        </form>
+                        <div class="text-center mt-3">
+                            <div class="spinner-border text-primary" role="status" id="config-spinner">
+                                <span class="sr-only">Loading...</span>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <!-- Manage Downloads Tab -->
+            <div class="tab-pane fade" id="manage-download" role="tabpanel" aria-labelledby="manage-download-tab">
+                <div class="card mt-4">
+                    <div class="card-body">
+                        <h1 class="card-title">Manage Download Files</h1>
+                        <div class="form-group">
+                            <label for="fileSelect">Select a file from the download directory</label>
+                            <select class="form-control" id="fileSelect" name="fileSelect" onchange="loadDownloadFile()">
+                                <!-- File options will be populated here by JavaScript -->
+                            </select>
+                        </div>
+                        <div class="form-group">
+                            <label for="downloadFileContent">File Content</label>
+                            <textarea class="form-control" id="downloadFileContent" name="downloadFileContent" rows="10"></textarea>
+                        </div>
+                        <button type="button" class="btn btn-primary" onclick="saveDownloadFile()">Save File</button>
+                        <button type="button" class="btn btn-secondary" onclick="updateAllFiles()">Update All Files</button>
+                        <div class="text-center mt-3">
+                            <div class="spinner-border text-primary" role="status" id="download-spinner">
+                                <span class="sr-only">Loading...</span>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+    <script>
+    let chatHistory = [];
+    
+    document.getElementById('chatQuestion').addEventListener('keydown', function(event) {
+        if (event.key === 'Enter' && !event.shiftKey) {
+            event.preventDefault(); // Prevent the default behavior of Enter key
+            submitChatQuestion();
+        }
+    });
+
+    function resetDiscussion() {
+        document.getElementById('chatQuestion').value = '';
+        document.getElementById('chatHistory').innerHTML = '';
+        chatHistory = [];
+    }
+
+    function submitChatQuestion() {
+        const question = document.getElementById('chatQuestion').value;
+        const spinner = document.getElementById('chat-loading-spinner');
+        spinner.style.display = 'block';
+
+        // Add the new question to the chat history
+        chatHistory.push(question);
+
+        fetch('/yoxofaqbot/api/private/chat', {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json',
+            },
+            body: JSON.stringify({ chatHistory: chatHistory }),
+        })
+        .then(response => response.json())
+        .then(data => {
+            spinner.style.display = 'none';
+            const htmlContent = marked.parse(data.answer);
+
+            // Add the answer to the chat history
+            chatHistory.push(htmlContent);
+
+            // Update the chat history display
+            const chatHistoryContainer = document.getElementById('chatHistory');
+            chatHistoryContainer.innerHTML = '';
+            for (let i = 0; i < chatHistory.length; i += 2) {
+                const question = chatHistory[i];
+                const answer = chatHistory[i + 1];
+                const questionElement = document.createElement('div');
+                questionElement.className = 'chat-question';
+                questionElement.textContent = question;
+                chatHistoryContainer.appendChild(questionElement);
+
+                if (answer) {
+                    const answerElement = document.createElement('div');
+                    answerElement.className = 'chat-answer';
+                    answerElement.innerHTML = answer;
+                    chatHistoryContainer.appendChild(answerElement);
+                }
+            }
+
+            // Clear the question input
+            document.getElementById('chatQuestion').value = '';
+            // Scroll the last message into view
+            const lastMessage = chatHistoryContainer.lastElementChild;
+            if (lastMessage) {
+                lastMessage.scrollIntoView({ behavior: 'smooth' });
+            }
+        })
+        .catch(error => {
+            spinner.style.display = 'none';
+            alert('Error: ' + error.message);
+        });
+    }
+
+    function submitQuestion() {
+        const question = document.getElementById('question').value;
+        const spinner = document.getElementById('loading-spinner');
+        spinner.style.display = 'block';
+        fetch('/yoxofaqbot/api/public/ask', {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json',
+            },
+            body: JSON.stringify({ question: question }),
+        })
+        .then(response => response.json())
+        .then(data => {
+            //const htmlContent = marked.parse(data.answer);
+            document.getElementById('answer').innerHTML = data.answer;
+            //document.getElementById('answer').textContent = data.answer;
+            spinner.style.display = 'none';
+            document.getElementById('result-card').style.display = 'block';
+            
+            const categoriesContainer = document.getElementById('categories');
+            categoriesContainer.innerHTML = '';
+            data.categories.forEach((categoryObj) => {
+                console.log('Category Object:', categoryObj); // Debug: Log each category object
+                const li = document.createElement('li');
+                const a = document.createElement('a');
+                a.href = categoryObj.category_link;
+                a.textContent = categoryObj.category_name;
+                a.target = '_blank'; // Optional: Opens the link in a new tab
+                li.appendChild(a);
+                categoriesContainer.appendChild(li);
+            });
+        })
+        .catch(error => {
+            spinner.style.display = 'none';
+            alert('Error: ' + error.message);
+        });
+    }
+    
+    function uploadFile() {
+        const form = document.getElementById('uploadForm');
+        const formData = new FormData(form);
+        const spinner = document.getElementById('upload-spinner');
+        const statusMessage = document.getElementById('status-message');
+        const downloadLink = document.getElementById('download-answers-button');
+
+        spinner.style.display = 'block';
+        statusMessage.textContent = '';
+        downloadLink.style.display = 'none';
+        checkProcessingStatus()
+
+        fetch('/yoxofaqbot/api/private/upload', { method: 'POST', body: formData, })
+        .then(response => response.json())
+        .then(data => {
+            if (data.success) {
+                statusMessage.textContent = data.message + ' - ' + data.output_file_name;
+                checkProcessingStatus();
+            } else {
+                statusMessage.textContent = data.message;
+            }
+        })
+        .catch(error => {
+            spinner.style.display = 'none';
+            statusMessage.textContent = 'Error: ' + error.message;
+        });
+    }
+
+    function checkProcessingStatus() {
+        const statusMessage = document.getElementById('status-message');
+        const downloadLink = document.getElementById('download-answers-button');
+        const spinner = document.getElementById('upload-spinner');
+        
+        fetch('/yoxofaqbot/api/private/batch_process_status')
+        .then(response => response.json())
+        .then(data => {
+            if (data.is_processing) {
+                spinner.style.display = 'block';
+                downloadLink.style.display = 'none';
+                statusMessage.textContent = 'Processing file: ' + data.output_file_name +'| Please wait...';
+                setTimeout(() => checkProcessingStatus(), 2000);
+            } else {
+                spinner.style.display = 'none';
+                statusMessage.textContent = 'Processing complete for file: ' + data.output_file_name + '!';
+                downloadLink.style.display = 'block';
+            }
+        })
+        .catch(error => {
+            statusMessage.textContent = 'Error: ' + error.message;
+        });
+}
+
+    function loadConfigFile() {
+        const fileName = document.getElementById('configSelect').value;
+        const spinner = document.getElementById('config-spinner');
+        spinner.style.display = 'block';
+        fetch('/yoxofaqbot/api/private/config/' + fileName, {
+            method: 'GET',
+        })
+        .then(response => response.json())
+        .then(data => {
+            spinner.style.display = 'none';
+            document.getElementById('configContent').value = data.content;
+        })
+        .catch(error => {
+            spinner.style.display = 'none';
+            alert('Error: ' + error.message);
+        });
+    }
+
+    function downloadAnswersFile() {
+        const spinner = document.getElementById('config-spinner');
+        const downloadLink = document.getElementById('download-answers-button');
+        spinner.style.display = 'block';
+
+        fetch('/yoxofaqbot/api/private/download-answers', {
+            method: 'GET',
+        })
+        .then(response => {
+            spinner.style.display = 'none';
+
+            // Check if the response is ok and if it contains file information
+            if (!response.ok) {
+                throw new Error('Network response was not ok: ' + response.statusText);
+            }
+
+            // Get the content disposition header to extract filename
+            const disposition = response.headers.get('Content-Disposition');
+            let filename = 'downloaded-file.txt'; // Default filename
+            
+            if (disposition && disposition.indexOf('attachment') !== -1) {
+                const filenameMatch = /filename[^;=\n]*=((['"]).*?\2|[^;\n]*)/.exec(disposition);
+                if (filenameMatch != null && filenameMatch[1]) { 
+                    filename = filenameMatch[1].replace(/['"]/g, '');
+                }
+            }
+
+            return response.blob().then(blob => ({
+                blob: blob,
+                filename: filename
+            }));
+        })
+        .then(obj => {
+            const url = window.URL.createObjectURL(obj.blob);
+            const a = document.createElement('a');
+            a.style.display = 'none';
+            a.href = url;
+            a.download = obj.filename;
+            document.body.appendChild(a);
+            a.click();
+            window.URL.revokeObjectURL(url);
+        })
+        .catch(error => {
+            spinner.style.display = 'none';
+            alert('Error: ' + error.message);
+        });
+
+        downloadLink.style.display = 'none';
+    }
+
+    function saveConfigFile() {
+        const fileName = document.getElementById('configSelect').value;
+        const content = document.getElementById('configContent').value;
+        const spinner = document.getElementById('config-spinner');
+        spinner.style.display = 'block';
+        fetch('/yoxofaqbot/api/private/config/' + fileName, {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json',
+            },
+            body: JSON.stringify({ content: content }),
+        })
+        .then(response => response.json())
+        .then(data => {
+            spinner.style.display = 'none';
+            alert(data.message);
+        })
+        .catch(error => {
+            spinner.style.display = 'none';
+            alert('Error: ' + error.message);
+        });
+    }
+
+        // Manage Downloads Tab Functions
+    function loadDownloadFile() {
+        const fileName = document.getElementById('fileSelect').value;
+        const spinner = document.getElementById('download-spinner');
+        spinner.style.display = 'block';
+        fetch('/yoxofaqbot/api/private/download/' + fileName, {
+            method: 'GET',
+        })
+        .then(response => response.json())
+        .then(data => {
+            spinner.style.display = 'none';
+            document.getElementById('downloadFileContent').value = data.content;
+        })
+        .catch(error => {
+            spinner.style.display = 'none';
+            alert('Error: ' + error.message);
+        });
+    }
+
+    function saveDownloadFile() {
+        const fileName = document.getElementById('fileSelect').value;
+        const content = document.getElementById('downloadFileContent').value;
+        const spinner = document.getElementById('download-spinner');
+        spinner.style.display = 'block';
+        fetch('/yoxofaqbot/api/private/download/' + fileName, {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json',
+            },
+            body: JSON.stringify({ content: content }),
+        })
+        .then(response => response.json())
+        .then(data => {
+            spinner.style.display = 'none';
+            alert(data.message);
+        })
+        .catch(error => {
+            spinner.style.display = 'none';
+            alert('Error: ' + error.message);
+        });
+    }
+
+    function updateAllFiles() {
+        const spinner = document.getElementById('download-spinner');
+        spinner.style.display = 'block';
+        fetch('/yoxofaqbot/api/private/update-all', {
+            method: 'POST',
+        })
+        .then(response => response.json())
+        .then(data => {
+            spinner.style.display = 'none';
+            alert(data.message);
+        })
+        .catch(error => {
+            spinner.style.display = 'none';
+            alert('Error: ' + error.message);
+        });
+    }
+
+    // Fetch the list of download files when the tab is opened
+    document.getElementById('manage-download-tab').addEventListener('click', function() {
+        const spinner = document.getElementById('download-spinner');
+        spinner.style.display = 'block';
+        fetch('/yoxofaqbot/api/private/download', {
+            method: 'GET',
+        })
+        .then(response => response.json())
+        .then(data => {
+            spinner.style.display = 'none';
+            const fileSelect = document.getElementById('fileSelect');
+            fileSelect.innerHTML = '';
+            data.files.forEach(file => {
+                const option = document.createElement('option');
+                option.value = file;
+                option.textContent = file;
+                fileSelect.appendChild(option);
+            });
+        })
+        .catch(error => {
+            spinner.style.display = 'none';
+            alert('Error: ' + error.message);
+        });
+    });
+    </script>
+
+    <script src="https://code.jquery.com/jquery-3.5.1.slim.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@4.5.2/dist/js/bootstrap.bundle.min.js"></script>
+</body>
+</html>
