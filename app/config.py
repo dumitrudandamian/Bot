@@ -17,15 +17,15 @@ class Config:
 
   
     # to be fetched from k8s env
-    PROJECT = os.getenv("PROJECT","oro-test-gen-338-dev")
+    PROJECT = os.getenv("PROJECT","ChatBot")
     LOCATION = os.getenv("LOCATION","europe-west3")
 
     DATA_BASE_FOLDER = os.getenv("DATA_BASE_FOLDER","/")
-    UPLOAD_FOLDER = os.path.join(DATA_BASE_FOLDER, os.getenv("UPLOAD_FOLDER","app/upload/"))
-    FAQ_DOWNLOAD_FOLDER = os.path.join(DATA_BASE_FOLDER, os.getenv("FAQ_DOWNLOAD_FOLDER", "app/faq"))
+    UPLOAD_FOLDER = os.path.join(DATA_BASE_FOLDER, os.getenv("UPLOAD_FOLDER","faqbot/upload/"))
+    FAQ_DOWNLOAD_FOLDER = os.path.join(DATA_BASE_FOLDER, os.getenv("FAQ_DOWNLOAD_FOLDER", "faqbot/faq"))
     ASK_QUESTION_HTML_FILE = os.getenv("ASK_QUESTION_HTML_FILE","ask_question.html")
-    CONFIG_FOLDER = os.getenv("CONFIG_FOLDER","/app/cfg/")
-    PROMPTS_FOLDER = os.path.join(DATA_BASE_FOLDER, os.getenv("PROMPTS_FOLDER","app/prompts/"))
+    CONFIG_FOLDER = os.getenv("CONFIG_FOLDER","/faqbot/cfg/")
+    PROMPTS_FOLDER = os.path.join(DATA_BASE_FOLDER, os.getenv("PROMPTS_FOLDER","faqbot/prompts/"))
     FAQ_BASE_URL = os.getenv("FAQ_BASE_URL","")
 
     REST_PORT = os.getenv("REST_PORT", "3008")

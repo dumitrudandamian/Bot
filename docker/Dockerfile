@@ -12,13 +12,13 @@ RUN pip3 install gunicorn
 RUN pip3 install prometheus_client
 RUN pip3 install vertexai
 
-WORKDIR /yoxo
+WORKDIR /faqbot
 COPY app app
 COPY faq faq
 COPY cfg cfg
 COPY prompts prompts
 
-ENV PYTHONPATH=/yoxo/app:$PYTHONPATH
+ENV PYTHONPATH=/faqbot/app:$PYTHONPATH
 
 ENTRYPOINT ["gunicorn","app.main:create_rest_app()"]
 CMD ["-w", "1", "--threads", "5", "--timeout", "120", "-b", "0.0.0.0:3008"]
