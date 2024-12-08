@@ -11,10 +11,6 @@ class Config:
                 HarmCategory.HARM_CATEGORY_SEXUALLY_EXPLICIT: HarmBlockThreshold.BLOCK_NONE,
                 HarmCategory.HARM_CATEGORY_HARASSMENT: HarmBlockThreshold.BLOCK_NONE,
             }
-    
-    PROXIES = {
-    }
-
   
     # to be fetched from k8s env
     PROJECT = os.getenv("PROJECT","ChatBot")

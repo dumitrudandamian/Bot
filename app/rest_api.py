@@ -3,7 +3,7 @@ from prometheus_client import Counter, Histogram, generate_latest, start_http_se
 from flasgger import Swagger, swag_from
 from llm_processors.base_question_processor import BaseQuestionProcessor
 from config import Config
-from aq_download import CategoryDownloader
+from faq_download import CategoryDownloader
 from batch_processor import BatchProcessor
 import os
 from concurrent.futures import ThreadPoolExecutor
@@ -341,7 +341,7 @@ class RestAPI:
         self.logger.debug("Entered into update_all_files() method.")
         try:
             self.logger.info("Triggered update of FAQ from the web site.")
-            downloader = CategoryDownloader(Config.FAQ_BASE_URL, Config.FAQ_DOWNLOAD_FOLDER, Config.PROXIES)
+            downloader = CategoryDownloader(Config.FAQ_BASE_URL, Config.FAQ_DOWNLOAD_FOLDER)
             Config.CATEGORIES_DICT = downloader.fetch_and_save_category_content()
             return jsonify({"message": "All files updated successfully"}), 200
         except Exception as e:

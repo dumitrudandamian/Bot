@@ -5,27 +5,26 @@ import os
 import logging
 
 class CategoryDownloader:
-    def __init__(self, base_url, download_folder, proxies):
+    def __init__(self, base_url, download_folder):
         self.logger = logging.getLogger(self.__class__.__name__)
         self.base_url = base_url
         self.download_folder = download_folder
-        self.proxies = proxies
         # Ensuring the download directory exists
         if not os.path.exists(self.download_folder):
             os.makedirs(self.download_folder)
 
     def download_category(self, category, link):
         self.logger.debug(f"Entered into download_category({category}, {link}) method.")
-        # response = requests.get(link, proxies=self.proxies, verify=False)
-        response = httpx.get(link, proxies=self.proxies, verify=False)
+
+        response = httpx.get(link, verify=False)
         response.encoding = 'utf-8'
         soup = BeautifulSoup(response.content.decode('utf-8'), 'html.parser')
         question_links = soup.find_all('a', class_='question-link')
 
         with open(f"{self.download_folder}/{category}.txt", "w", encoding="utf-8") as file:
             for link in question_links:
-                # response = requests.get(link.get('href'), proxies=self.proxies, verify=False)
-                response = httpx.get(link.get('href'), proxies=self.proxies, verify=False)
+                
+                response = httpx.get(link.get('href'), verify=False)
                 response.encoding = 'utf-8'
                 soup = BeautifulSoup(response.content.decode('utf-8'), 'html.parser')
 
@@ -41,8 +40,8 @@ class CategoryDownloader:
 
     def fetch_and_save_category_content(self):
         self.logger.info(f"About to download all FAQs from URL: { self.base_url} ")
-        # response = requests.get(self.base_url, proxies=self.proxies, verify=False)
-        response = httpx.get(self.base_url, proxies=self.proxies, verify=False)
+        
+        response = httpx.get(self.base_url, verify=False)
         response.raise_for_status()
         response.encoding = 'utf-8'
         category_dict = {"detalii-pachete-optiuni": "https://www.yoxo.ro/abonament/"}
