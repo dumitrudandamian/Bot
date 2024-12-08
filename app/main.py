@@ -5,7 +5,7 @@ from llm_processors.gpt_question_processor import GPTQuestionProcessor
 from batch_processor import BatchProcessor
 from interactive_mode import InteractiveMode
 from rest_api import RestAPI
-from yoxo_faq_download import CategoryDownloader
+from app.faq_download import CategoryDownloader
 import logging
 import logging.config
 import sys
