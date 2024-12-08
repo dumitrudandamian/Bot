@@ -19,7 +19,7 @@ class RestAPI:
     def __init__(self, question_processor: BaseQuestionProcessor):
         self.app = Flask(__name__)
         CORS(self.app)
-        CORS(self.app, resources={r"/ask": {"origins": ["https://yoxo.ro", "https://orange.ro"]}})
+        CORS(self.app, resources={r"/ask": {"origins": ["https://aiverse-advisors.ro"]}})
 
         self.logger = logging.getLogger(self.__class__.__name__)
         self.logger.debug(f"Started prometheus client on: {Config.PROMETHEUS_PORT}")
@@ -40,7 +40,7 @@ class RestAPI:
         self.swagger = Swagger(self.app, template={
             "swagger": "2.0",
             "info": {
-                "title": "YoxoFaqBot API",
+                "title": "FaqBot API",
                 "description": "REST API documentation",
                 "version": "1.0.0"
             },

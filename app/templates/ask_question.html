@@ -12,7 +12,7 @@
     .container {
         margin-top: 50px;
     }
-    .orange-logo {
+    .aiverse-advisors-logo {
         width: 100px; /* Make the logo smaller */
         float: left; /* Float the logo to the left */
         margin-right: 20px; /* Add some space to the right of the logo */
@@ -90,7 +90,7 @@
     <title>Upload File & Ask Question</title>
     <script>
         function loadModelName() {
-            fetch('/yoxofaqbot/api/private/model_name' , {
+            fetch('/faqbot/api/private/model_name' , {
                 method: 'GET',
             })
             .then(response => response.json())
@@ -109,7 +109,7 @@
 <body>
     <div class="container">
         <div>
-            <img src="{{ url_for('static', filename='orange_logo.png') }}" class="orange-logo">
+            <img src="{{ url_for('static', filename='AIVERSE-ADVISORS-logo.png') }}" class="aiverse-advisors-logo">
         </div>
         <ul class="nav nav-tabs" id="myTab" role="tablist">
             <li class="nav-item">
@@ -289,7 +289,7 @@
         // Add the new question to the chat history
         chatHistory.push(question);
 
-        fetch('/yoxofaqbot/api/private/chat', {
+        fetch('/faqbot/api/private/chat', {
             method: 'POST',
             headers: {
                 'Content-Type': 'application/json',
@@ -341,7 +341,7 @@
         const question = document.getElementById('question').value;
         const spinner = document.getElementById('loading-spinner');
         spinner.style.display = 'block';
-        fetch('/yoxofaqbot/api/public/ask', {
+        fetch('/faqbot/api/public/ask', {
             method: 'POST',
             headers: {
                 'Content-Type': 'application/json',
@@ -387,7 +387,7 @@
         downloadLink.style.display = 'none';
         checkProcessingStatus()
 
-        fetch('/yoxofaqbot/api/private/upload', { method: 'POST', body: formData, })
+        fetch('/faqbot/api/private/upload', { method: 'POST', body: formData, })
         .then(response => response.json())
         .then(data => {
             if (data.success) {
@@ -408,7 +408,7 @@
         const downloadLink = document.getElementById('download-answers-button');
         const spinner = document.getElementById('upload-spinner');
         
-        fetch('/yoxofaqbot/api/private/batch_process_status')
+        fetch('/faqbot/api/private/batch_process_status')
         .then(response => response.json())
         .then(data => {
             if (data.is_processing) {
@@ -431,7 +431,7 @@
         const fileName = document.getElementById('configSelect').value;
         const spinner = document.getElementById('config-spinner');
         spinner.style.display = 'block';
-        fetch('/yoxofaqbot/api/private/config/' + fileName, {
+        fetch('/faqbot/api/private/config/' + fileName, {
             method: 'GET',
         })
         .then(response => response.json())
@@ -450,7 +450,7 @@
         const downloadLink = document.getElementById('download-answers-button');
         spinner.style.display = 'block';
 
-        fetch('/yoxofaqbot/api/private/download-answers', {
+        fetch('/faqbot/api/private/download-answers', {
             method: 'GET',
         })
         .then(response => {
@@ -500,7 +500,7 @@
         const content = document.getElementById('configContent').value;
         const spinner = document.getElementById('config-spinner');
         spinner.style.display = 'block';
-        fetch('/yoxofaqbot/api/private/config/' + fileName, {
+        fetch('/faqbot/api/private/config/' + fileName, {
             method: 'POST',
             headers: {
                 'Content-Type': 'application/json',
@@ -523,7 +523,7 @@
         const fileName = document.getElementById('fileSelect').value;
         const spinner = document.getElementById('download-spinner');
         spinner.style.display = 'block';
-        fetch('/yoxofaqbot/api/private/download/' + fileName, {
+        fetch('/faqbot/api/private/download/' + fileName, {
             method: 'GET',
         })
         .then(response => response.json())
@@ -542,7 +542,7 @@
         const content = document.getElementById('downloadFileContent').value;
         const spinner = document.getElementById('download-spinner');
         spinner.style.display = 'block';
-        fetch('/yoxofaqbot/api/private/download/' + fileName, {
+        fetch('/faqbot/api/private/download/' + fileName, {
             method: 'POST',
             headers: {
                 'Content-Type': 'application/json',
@@ -563,7 +563,7 @@
     function updateAllFiles() {
         const spinner = document.getElementById('download-spinner');
         spinner.style.display = 'block';
-        fetch('/yoxofaqbot/api/private/update-all', {
+        fetch('/faqbot/api/private/update-all', {
             method: 'POST',
         })
         .then(response => response.json())
@@ -581,7 +581,7 @@
     document.getElementById('manage-download-tab').addEventListener('click', function() {
         const spinner = document.getElementById('download-spinner');
         spinner.style.display = 'block';
-        fetch('/yoxofaqbot/api/private/download', {
+        fetch('/faqbot/api/private/download', {
             method: 'GET',
         })
         .then(response => response.json())

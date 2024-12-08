@@ -1,3 +1,4 @@
 # Ignore __pycache__ directories
 __pycache__/
+llm_processors/__pycache__/
 upload/
