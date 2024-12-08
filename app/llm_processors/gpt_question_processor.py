@@ -8,7 +8,7 @@ import httpx as _httpx
 import logging
 import json
 
-_http_client = _httpx.Client(proxies=Config.PROXIES)
+_http_client = _httpx.Client()
 
 class GPTQuestionProcessor(BaseQuestionProcessor):
     def __init__(self, model_name):
