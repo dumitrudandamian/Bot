@@ -14,7 +14,6 @@ RUN pip3 install vertexai
 
 WORKDIR /faqbot
 COPY app app
-COPY faq faq
 COPY cfg cfg
 COPY prompts prompts
 
