@@ -13,9 +13,9 @@ RUN pip3 install prometheus_client
 RUN pip3 install vertexai
 
 WORKDIR /faqbot
-COPY app app
-COPY cfg cfg
-COPY prompts prompts
+COPY ../app app
+COPY ../cfg cfg
+COPY ../prompts prompts
 
 ENV PYTHONPATH=/faqbot/app:$PYTHONPATH
 
