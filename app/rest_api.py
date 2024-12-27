@@ -182,6 +182,7 @@ class RestAPI:
             start_time = time.time()
 
             intrebare = request.json.get('question', '')
+            self.logger.info("intrebare:{intrebare}")
             categorii, raspuns = self.question_processor.answer_question(intrebare)
 
             cleaned_raspuns = raspuns.replace('\n', '')
