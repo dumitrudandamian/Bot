@@ -114,7 +114,7 @@ def main():
         interactive_mode = InteractiveMode(question_processor)
         interactive_mode.run()
 
-def create_rest_app():
+def create_rest_app(worker=None, args=None):
     setup_logging()
     logger = logging.getLogger(__name__)   
     question_processor = get_processor(Config.LLM_MODEL) 
