@@ -16,13 +16,12 @@ class Config:
     PROJECT = os.getenv("PROJECT","ChatBot")
     LOCATION = os.getenv("LOCATION","europe-west3")
 
-    DATA_BASE_FOLDER = os.getenv("DATA_BASE_FOLDER","/chatbot")
-    UPLOAD_FOLDER = os.path.join(DATA_BASE_FOLDER, os.getenv("UPLOAD_FOLDER","upload/"))
-    FAQ_DOWNLOAD_FOLDER = os.path.join(DATA_BASE_FOLDER, os.getenv("FAQ_DOWNLOAD_FOLDER", "faq/"))
+    UPLOAD_FOLDER = os.getenv("UPLOAD_FOLDER","/chatbot/upload/")
+    FAQ_DOWNLOAD_FOLDER = os.getenv("FAQ_DOWNLOAD_FOLDER", "/chatbot/faq/")
     ASK_QUESTION_HTML_FILE = os.getenv("ASK_QUESTION_HTML_FILE","ask_question.html")
-    CONFIG_FOLDER = os.path.join(DATA_BASE_FOLDER, os.getenv("CONFIG_FOLDER","cfg/"))
-    PROMPTS_FOLDER = os.path.join(DATA_BASE_FOLDER, os.getenv("PROMPTS_FOLDER","prompts/"))
-    FAQ_BASE_URL = os.getenv("FAQ_BASE_URL","")
+    CONFIG_FOLDER = os.getenv("CONFIG_FOLDER","/chatbot/cfg/")
+    PROMPTS_FOLDER = os.getenv("PROMPTS_FOLDER","/chatbot/prompts/")
+    FAQ_BASE_URL = os.getenv("FAQ_BASE_URL","https://www.orange.ro/help/")
 
     REST_PORT = os.getenv("REST_PORT", "3008")
     PROMETHEUS_PORT = os.getenv("PROMETHEUS_PORT", 5001)
@@ -32,8 +31,8 @@ class Config:
     LLM_MODEL = os.getenv("LLM_MODEL","gemini")
     GPT_MODEL = os.getenv("GPT_MODEL","gpt-4o")
     GEMINI_MODEL = os.getenv("GEMINI_MODEL","gemini-1.5-pro-002")
-    FAQ_DOWNLOAD_METHOD = os.getenv("FAQ_UPLOAD_METHOD","/faqbot/api/private/update-all")
-    K8S_SERVICE_NAME = os.getenv("K8S_SERVICE_NAME","faqbot")
+    FAQ_DOWNLOAD_METHOD = os.getenv("FAQ_UPLOAD_METHOD","/chatbot/api/private/update-all")
+    K8S_SERVICE_NAME = os.getenv("K8S_SERVICE_NAME","chatbot")
 
     # To be fetched from Vault
     GOOGLE_APPLICATION_CREDENTIALS = os.getenv("GOOGLE_APPLICATION_CREDENTIALS", CONFIG_FOLDER + "/auth_dan.json")

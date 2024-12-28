@@ -12,12 +12,12 @@ RUN pip3 install gunicorn
 RUN pip3 install prometheus_client
 RUN pip3 install vertexai
 
-WORKDIR /faqbot
+WORKDIR /chatbot
 COPY app app
 COPY cfg cfg
 COPY prompts prompts
 
-ENV PYTHONPATH=/faqbot/app:$PYTHONPATH
+ENV PYTHONPATH=/chatbot/app:$PYTHONPATH
 
 ENTRYPOINT ["gunicorn","app.main:create_rest_app()"]
 CMD ["-w", "1", "--threads", "5", "--timeout", "120", "-b", "0.0.0.0:8080"]

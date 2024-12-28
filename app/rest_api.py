@@ -44,7 +44,7 @@ class RestAPI:
                 "description": "REST API documentation",
                 "version": "1.0.0"
             },
-            "basePath": "/faqbot/api/",
+            "basePath": "/chatbot/api/",
             "definitions": {
                 "AskResponse": {
                     "type": "object",
@@ -94,20 +94,20 @@ class RestAPI:
         self.output_file_name = ""
         self.input_file_name = ""
 
-        self.app.add_url_rule('/faqbot/api/public/ask', 'ask', self.limited_ask, methods=['POST'])
-        self.app.add_url_rule('/faqbot/api/private/chat', 'chat', self.limited_chat, methods=['POST'])
-        self.app.add_url_rule('/faqbot/api/private/upload', 'upload', self.upload, methods=['POST'])
-        self.app.add_url_rule('/faqbot/api/private/batch_process_status', 'batch_process_status', self.batch_process_status, methods=['GET'])
-        self.app.add_url_rule('/faqbot/web', 'web', self.web, methods=['GET'])
-        self.app.add_url_rule('/faqbot/api/private/config/<file_name>', 'get_config', self.get_config, methods=['GET'])
-        self.app.add_url_rule('/faqbot/api/private/config/<file_name>', 'save_config', self.save_config, methods=['POST'])
-        self.app.add_url_rule('/faqbot/api/private/download/<file_name>', 'get_download', self.get_download, methods=['GET'])
-        self.app.add_url_rule('/faqbot/api/private/download/<file_name>', 'save_download', self.save_download, methods=['POST'])
-        self.app.add_url_rule('/aqbot/api/private/download', 'list_download_files', self.list_download_files, methods=['GET'])
-        self.app.add_url_rule('/faqbot/api/private/update-all', 'update_all_files', self.update_all_files, methods=['POST'])
-        self.app.add_url_rule('/faqbot/api/private/download-answers', 'get_download_answers', self.get_download_answers, methods=['GET'])
+        self.app.add_url_rule('/chatbot/api/public/ask', 'ask', self.limited_ask, methods=['POST'])
+        self.app.add_url_rule('/chatbot/api/private/chat', 'chat', self.limited_chat, methods=['POST'])
+        self.app.add_url_rule('/chatbot/api/private/upload', 'upload', self.upload, methods=['POST'])
+        self.app.add_url_rule('/chatbot/api/private/batch_process_status', 'batch_process_status', self.batch_process_status, methods=['GET'])
+        self.app.add_url_rule('/chatbot/web', 'web', self.web, methods=['GET'])
+        self.app.add_url_rule('/chatbot/api/private/config/<file_name>', 'get_config', self.get_config, methods=['GET'])
+        self.app.add_url_rule('/chatbot/api/private/config/<file_name>', 'save_config', self.save_config, methods=['POST'])
+        self.app.add_url_rule('/chatbot/api/private/download/<file_name>', 'get_download', self.get_download, methods=['GET'])
+        self.app.add_url_rule('/chatbot/api/private/download/<file_name>', 'save_download', self.save_download, methods=['POST'])
+        self.app.add_url_rule('/chatbot/api/private/download', 'list_download_files', self.list_download_files, methods=['GET'])
+        self.app.add_url_rule('/chatbot/api/private/update-all', 'update_all_files', self.update_all_files, methods=['POST'])
+        self.app.add_url_rule('/chatbot/api/private/download-answers', 'get_download_answers', self.get_download_answers, methods=['GET'])
         self.app.add_url_rule('/health', 'health', self.health, methods=['GET'])
-        self.app.add_url_rule('/faqbot/api/private/model_name', 'model_name', self.get_model_name, methods=['GET'])
+        self.app.add_url_rule('/chatbot/api/private/model_name', 'model_name', self.get_model_name, methods=['GET'])
 
     def rate_limit_exceeded(self, f):
         self.logger.warn(f"Rate limit exceeded for client address: {self.get_ip_from_header}")
