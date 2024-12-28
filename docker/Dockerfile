@@ -19,8 +19,8 @@ COPY prompts prompts
 
 ENV PYTHONPATH=/chatbot/app:$PYTHONPATH
 
-ENTRYPOINT ["gunicorn","app.main:create_rest_app()"]
-CMD ["-w", "1", "--threads", "5", "--timeout", "120", "-b", "0.0.0.0:8080"]
+ENTRYPOINT ["gunicorn","app.main:create_rest_app"]
+CMD ["-w", "1", "--threads", "5", "--timeout", "120", "-b", "0.0.0.0:8080", "--log-level", "debug"]
 
 EXPOSE 8080
 EXPOSE 5000
