@@ -1,5 +1,4 @@
 from flask import Flask, request, jsonify, render_template, send_file, after_this_request
-from prometheus_client import Counter, Histogram, generate_latest, start_http_server
 from flasgger import Swagger, swag_from
 from llm_processors.base_question_processor import BaseQuestionProcessor
 from config import Config
@@ -23,11 +22,6 @@ class RestAPI:
 
         self.logger = logging.getLogger(self.__class__.__name__)
         self.logger.debug(f"Started prometheus client on: {Config.PROMETHEUS_PORT}")
-
-        start_http_server(Config.PROMETHEUS_PORT)
-        self.ask_request_counter = Counter('ask_requests_served_total', 'Total number of API requests served')
-        self.ask_response_time_histogram = Histogram('ask_response_time_seconds', 'API response time in seconds')
-        self.ask_limit_counter = Counter('ask_requests_limited_total', 'Total number of API requests limited')
 
         # Create the Limiter instance
         self.limiter = Limiter(
@@ -111,7 +105,6 @@ class RestAPI:
 
     def rate_limit_exceeded(self, f):
         self.logger.warn(f"Rate limit exceeded for client address: {self.get_ip_from_header}")
-        self.ask_limit_counter.inc() # increment Prometheus counter
         response = jsonify({
             "status": 429,
             "error": "Rate limit exceeded",
@@ -178,7 +171,6 @@ class RestAPI:
         self.logger.debug("Entered into limited_ask() method.")
         @self.limiter.limit(Config.ASK_LIMIT_PER_HOUR)
         def ask_inner():
-            self.ask_request_counter.inc() # increment Prometheus counters 
             start_time = time.time()
 
             intrebare = request.json.get('question', '')
@@ -193,7 +185,6 @@ class RestAPI:
 
             self.logger.info({"intrebare":intrebare, "categories": categories_with_links, "answer": cleaned_raspuns})
             response_time = time.time() - start_time
-            self.ask_response_time_histogram.observe(response_time)  # Measure the response time
             return jsonify({"categories": categories_with_links, "answer": cleaned_raspuns})
         return ask_inner()
 
@@ -232,7 +223,6 @@ class RestAPI:
         self.logger.info("Entered into limited_chat() method." + str(request.json))
         @self.limiter.limit(Config.ASK_LIMIT_PER_HOUR)
         def ask_inner():
-            self.ask_request_counter.inc() # increment Prometheus counters 
             start_time = time.time()
 
             intrebari = request.json.get('chatHistory', '')
@@ -242,7 +232,6 @@ class RestAPI:
             categorii, raspuns = self.question_processor.chat(intrebari)
             
             response_time = time.time() - start_time
-            self.ask_response_time_histogram.observe(response_time)  # Measure the response time
             self.logger.info("{\"conversationId\": " + str(conversationId) +", \"categories\": " + str(categorii) +", \"answer\":\"" + raspuns + "\"}")
             return jsonify({"categories": categorii, "answer": raspuns})
         return ask_inner()
